@@ -1,0 +1,25 @@
+{
+  "name": "sconfig",
+  "author": "UNLOQIO",
+  "version": "1.0.0",
+  "dependencies": {
+    "request": "2.x"
+  },
+  "description": "API Client for sconfig.io",
+  "main": "index.js",
+  "keywords": [
+    "sconfig",
+    "serverconfig",
+    "config",
+    "encrypted-config"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snupa/node-sconfig"
+  },
+  "bugs": {
+    "url": "https://github.com/snupa/node-sconfig/issues"
+  },
+  "homepage": "https://github.com/snupa/node-sconfig"
+}

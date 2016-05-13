@@ -5,7 +5,7 @@ var api = require('./lib/api'),
 const DEFAULT_PERSIST_FILE = path.normalize(process.cwd() + '/.sconfig');
 
 var API_KEY = null,
-  API_SECRET = null,
+  VERSION = null,
   ENV = null; // TODO: the env should be stripped out.
 
 /*
@@ -19,26 +19,23 @@ var API_KEY = null,
 module.exports = function initSConfig(opt, onDone) {
   if(typeof opt !== 'object' || !opt) opt = {};
   var key = opt.key || process.env.SCONFIG_KEY || null,
-    secret = opt.secret || process.env.SCONFIG_SECRET || null,
-    env = opt.env || process.env.NODE_ENV || null,
+    version = opt.version || process.env.SCONFIG_VERSION || null,
     persistFile = null;
   if(key && !API_KEY) API_KEY = key;
-  if(secret && !API_SECRET) API_SECRET = secret;
+  if(version) VERSION = version;
   if(!key && API_KEY) key = API_KEY;
-  if(!secret && API_SECRET) secret = API_SECRET;
-
+  if(opt.sync) {
+    persistFile = (typeof opt.sync === 'string' ? path.normalize(opt.sync) : DEFAULT_PERSIST_FILE);
+  }
   var done = (typeof onDone === 'function' ? onDone : function noop(e) {
     if(typeof e !== 'undefined') {
       console.error('SConfig:', e);
     }
   });
+
   /* Check for api key or secret. */
-  if(!key || !secret) return done(new Error('Please specify the SConfig API Key and Secret'));
+  if(!key) return handleError(new Error('Please specify the SConfig API Key and Secret'));
   key = key.trim();
-  secret = secret.trim();
-  if(opt.sync) {
-    persistFile = (typeof opt.sync === 'string' ? path.normalize(opt.sync) : DEFAULT_PERSIST_FILE);
-  }
 
   /* Persists data to disk. */
   function doPersist(data, fn) {
@@ -101,7 +98,7 @@ module.exports = function initSConfig(opt, onDone) {
     done(null, cfg);
   }
 
-  api.fetch(key, secret, '/env/' + env, function(err, data) {
+  api.fetch(key, version, function(err, data) {
     if(err) return handleError(err);
     doPersist(data, function(e) {
       if(e) return done(e);

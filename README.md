@@ -5,7 +5,7 @@
  Node.js client for sconfig.io  
 
 ## Usage
-`
+```javascript
 var sconfig = require('sconfig');
 
 sconfig({
@@ -16,7 +16,7 @@ sconfig({
   console.log("OK", config);
   // start your app.
 });
-`
+```
 ## Example applications
  - example/config.js
   

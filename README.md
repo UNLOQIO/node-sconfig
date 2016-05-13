@@ -1,6 +1,22 @@
+# Installation
+`npm i --save sconfig`
+
 # What it is
  Node.js client for sconfig.io  
 
+## Usage
+`
+var sconfig = require('sconfig');
+
+sconfig({
+  key: '{YOUR_API_KEY}',
+  version: '{YOUR_VERSION}', // defaults to latest
+  sync: true
+}, function(err, config) {
+  console.log("OK", config);
+  // start your app.
+});
+`
 ## Example applications
  - example/config.js
   

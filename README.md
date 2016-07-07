@@ -2,7 +2,16 @@
 `npm i --save sconfig`
 
 # What it is
- Node.js client for sconfig.io  
+ Node.js client for sconfig.io encrypted configuration storage
+
+
+## How to get started
+1. Login with UNLOQ (https://sconfig.io/download) at https://sconfig.io
+2. Create an application with an environment and a minimal description. A default API key will be generated for you
+3. Navigate to the Versions tab and create a new configuration version, giving it a name and selecting a content type
+4. Enter some configuration data and save it
+5. Go back to Details and view the API Key
+6. Use either the full configuration access key or the zero-knowledge access key plus the application secret and place them in your application.
 
 ## Usage
 ```javascript
@@ -10,9 +19,15 @@ var sconfig = require('sconfig');
 
 sconfig({
   key: '{YOUR_API_KEY}',
-  version: '{YOUR_VERSION}', // defaults to latest
-  sync: true
+  version: '{YOUR_VERSION}', // version to fetch, defaults to the latest version
+  sync: true                 // stores a copy of the latest configuration data locally in {process.cwd() + '/.sconfig}. 
+                             // If sync is enabled, should the API servers be offline, it will load the cached configuration data.
+                            // Add ".sconfig" this to .gitignore and .npmignore
 }, function(err, config) {
+ if(err) {
+   console.error('Could not fetch configuration data', err);
+   return;
+ }
   console.log("OK", config);
   // start your app.
 });

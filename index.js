@@ -22,7 +22,7 @@ var API_KEY = null,
  * */
 module.exports = function initSConfig(opt, onDone) {
   if (typeof opt !== 'object' || !opt) opt = {};
-  if(!opt.json) opt.json = true;
+  if(typeof opt.json === 'undefined') opt.json = true;
   var key = opt.key || process.env.SCONFIG_KEY || null,
     secret = opt.secret || process.env.SCONFIG_SECRET || null,
     version = opt.version || process.env.SCONFIG_VERSION || null,

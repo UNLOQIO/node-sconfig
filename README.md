@@ -18,22 +18,22 @@
 var sconfig = require('sconfig');
 
 sconfig({
-  key: '{YOUR_API_KEY}',
-  version: '{YOUR_VERSION}', // version to fetch, defaults to the latest version
-  sync: true                 // stores a copy of the latest configuration data locally in {process.cwd() + '/.sconfig}. 
-                             // If sync is enabled, should the API servers be offline, it will load the cached configuration data.
-                            // Add ".sconfig" this to .gitignore and .npmignore
+  key: '{YOUR_FULL_API_KEY}',
+  version: 'latest',           // version to fetch, defaults to latest version created
+  json: true,                  // by default, expect JSON data and parse it.
+  sync: true                   // persist the configuration data locally in the event of an sconfig server outage
 }, function(err, config) {
- if(err) {
-   console.error('Could not fetch configuration data', err);
-   return;
- }
-  console.log("OK", config);
-  // start your app.
+  if (err) {
+    console.log(err);
+    return;
+  }
+  // configuration data available, cached and parsed
+  console.log("Start app with config:", config);
 });
 ```
 ## Example applications
- - example/config.js
+ - example/fetch-full.js
+ - example/fetch-zero-knowledge.js
   
 ## License 
   [MIT](LICENSE)

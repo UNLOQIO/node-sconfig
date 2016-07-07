@@ -7,6 +7,7 @@ const DEFAULT_PERSIST_FILE = path.normalize(process.cwd() + '/.sconfig'),
   DEFAULT_SIGN_ALG = 'sha256';
 
 var API_KEY = null,
+  API_SECRET = null,
   VERSION = null,
   ENV = null; // TODO: the env should be stripped out.
 
@@ -21,10 +22,13 @@ var API_KEY = null,
  * */
 module.exports = function initSConfig(opt, onDone) {
   if (typeof opt !== 'object' || !opt) opt = {};
+  if(!opt.json) opt.json = true;
   var key = opt.key || process.env.SCONFIG_KEY || null,
+    secret = opt.secret || process.env.SCONFIG_SECRET || null,
     version = opt.version || process.env.SCONFIG_VERSION || null,
     persistFile = null;
   if (key && !API_KEY) API_KEY = key;
+  if (secret && !API_SECRET) API_SECRET = secret;
   if (version) VERSION = version;
   if (!key && API_KEY) key = API_KEY;
   if (opt.sync) {
@@ -37,9 +41,18 @@ module.exports = function initSConfig(opt, onDone) {
   });
 
   /* Check for api key or secret. */
-  if (!key) return handleError(new Error('Please specify the SConfig API Key and Secret'));
+  if (!key) return handleError(new Error('Please specify the SConfig API Key'));
   key = key.trim();
-
+  if(key.length <= 36 && !secret) {
+    return handleError(new Error('Please specify the SConfig App secret'));
+  }
+  if(key.length <= 36) {
+    if(!secret) return handleError(new Error('Please specify the SConfig App secret'));
+    secret = secret.trim();
+  } else {
+    secret = null;
+    API_SECRET = null;
+  }
   /* Persists data to disk. */
   function doPersist(data, fn) {
     if (!opt.sync) return fn();
@@ -69,6 +82,7 @@ module.exports = function initSConfig(opt, onDone) {
 
   /* Processes the data */
   function processResponse(data) {
+    // by default we try and convert the data to JSON.
     if (opt.json === true) {
       try {
         data = JSON.parse(data);
@@ -78,7 +92,8 @@ module.exports = function initSConfig(opt, onDone) {
       }
       return done(null, data);
     }
-    /* By default, we check to see if we have and  */
+    // Then, we check if we have a KEY=VALUE kind of data
+    // If we do have this, we will place them in process.env
     if (data.indexOf("=") === -1) return done(null, data);
     data = data.replace(/\r/g, '');
     var keys = data.split('\n'),
@@ -101,11 +116,11 @@ module.exports = function initSConfig(opt, onDone) {
     done(null, cfg);
   }
 
-  api.getConfig(key, version, function(err, data) {
+  api.getConfig(key, secret, version, function(err, data, type) {
     if (err) return handleError(err);
     doPersist(data, function(e) {
       if (e) return done(e);
-      processResponse(data);
+      processResponse(data, type);
     });
   });
 };
@@ -206,7 +221,7 @@ module.exports.createSignature = function(data, done) {
     done = data;
     data = {};
   }
-  if(typeof done !== 'function') {
+  if (typeof done !== 'function') {
     console.warn('sconfig: createSignature requires a callback.');
     return false;
   }
@@ -215,9 +230,9 @@ module.exports.createSignature = function(data, done) {
     e.code = 'API_KEY';
     return done && done(e);
   }
-  if(!data) data = {};
+  if (!data) data = {};
   api.post(API_KEY, '/signature', data, function(e, res) {
-    if(e) return done(e);
+    if (e) return done(e);
     return done(null, res.result);
   });
 };
